@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:ember_quest/actors/emper_player.dart';
 import 'package:ember_quest/actors/water_enemy.dart';
@@ -8,9 +9,14 @@ import 'package:ember_quest/objects/platform_block.dart';
 import 'package:ember_quest/objects/star.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart';
 
 class EmberQuestGame extends FlameGame {
   late EmberPlayer _ember;
+  late double lastBlockXPosition = 0.0;
+  late UniqueKey lastBlockKey;
+
+  double objectSpeed = 0.0;
 
   @override
   FutureOr<void> onLoad() async {
@@ -27,17 +33,24 @@ class EmberQuestGame extends FlameGame {
     camera.viewfinder.anchor = Anchor.topLeft;
 
     initializeGame();
-
-    return super.onLoad();
   }
 
-  void _loadGameSegments(int segmentIndex, double xPositionOffset) {
+  @override
+  Color backgroundColor() {
+    return const Color.fromARGB(255, 173, 223, 247);
+  }
+
+  void loadGameSegments(int segmentIndex, double xPositionOffset) {
     for (final block in segments[segmentIndex]) {
       switch (block.blockType) {
-        case GroundBlock:
-        case PlatformBlock:
-        case Star:
-        case WaterEnemy:
+        case const (GroundBlock):
+          add(GroundBlock(gridPosition: block.gridPosition, xOffset: xPositionOffset));
+        case const (PlatformBlock):
+          add(PlatformBlock(gridPosition: block.gridPosition, xOffset: xPositionOffset));
+        case const (Star):
+          world.add(Star(gridPosition: block.gridPosition, xOffset: xPositionOffset));
+        case const (WaterEnemy):
+          world.add(WaterEnemy(gridPosition: block.gridPosition, xOffset: xPositionOffset));
       }
     }
   }
@@ -47,7 +60,7 @@ class EmberQuestGame extends FlameGame {
     segmentsToLoad.clamp(0, segments.length);
 
     for (var i = 0; i <= segmentsToLoad; i++) {
-      _loadGameSegments(i, (i * 640).toDouble());
+      loadGameSegments(i, (i * 640).toDouble());
     }
 
     _ember = EmberPlayer(position: Vector2(128, canvasSize.y - 70));

@@ -12,6 +12,5 @@ class EmberPlayer extends SpriteAnimationComponent with HasGameReference<EmberQu
       game.images.fromCache('ember.png'),
       SpriteAnimationData.sequenced(amount: 4, stepTime: 0.12, textureSize: Vector2.all(16)),
     );
-    return super.onLoad();
   }
 }
